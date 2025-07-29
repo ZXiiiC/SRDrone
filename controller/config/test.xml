@@ -1,0 +1,41 @@
+<root BTCPP_format="4">
+  <BehaviorTree ID="MainTree">
+    <Sequence>
+      <!-- Take off to a safe height -->
+      <TakeOff takeoff_target="0;0;1.5" />
+      
+      <!-- Fly to the starting corner of the square trajectory -->
+      <FlyToCoordinates coordinates="0;0;1.5" />
+      
+      <!-- Move to the first corner of the square trajectory -->
+      <FlyToCoordinates coordinates="0;1.5;1.5" />
+      
+      <!-- Turn right to face the next side of the square -->
+      <TurnRight turn_attitude="90" />
+      
+      <!-- Move to the second corner of the square trajectory -->
+      <MoveForward MoveForward_distance="1.5" />
+      
+      <!-- Turn right to face the next side of the square -->
+      <TurnRight turn_attitude="90" />
+      
+      <!-- Move to the third corner of the square trajectory -->
+      <MoveForward MoveForward_distance="1.5" />
+      
+      <!-- Turn right to face the next side of the square -->
+      <TurnRight turn_attitude="90" />
+      
+      <!-- Move to the fourth corner of the square trajectory -->
+      <MoveForward MoveForward_distance="1.5" />
+      
+      <!-- Turn right to face the starting point -->
+      <TurnRight turn_attitude="90" />
+      
+      <!-- Move back to the starting point -->
+      <MoveForward MoveForward_distance="1.5" />
+      
+      <!-- Land the drone -->
+      <Land />
+    </Sequence>
+  </BehaviorTree>
+</root>

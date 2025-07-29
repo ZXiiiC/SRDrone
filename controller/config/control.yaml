@@ -1,0 +1,36 @@
+depth_topic: /camera/aligned_depth_to_color/image_raw
+auto_arming: false
+takeoff_h: 1.0 #正负号取决与参考坐标系
+takeoff_yaw: 0 # 起飞角度也需要使用参考坐标
+kx: 0.003  #通过图像中心与目标中心计算的差值，乘以一个系数，计算飞机的速度
+ky: 0.003
+hight_max: 1.5 # 飞机飞行的轨迹是S型还是，反S型，因为需要知道第一个框和第二个框的相对位置
+vx_max: 0.2
+vy_max: 0.2
+is_S: false 
+rflysim:
+    enable: true
+    f_rgb: 608.947814941406 # f=img_w / (2*(tan(fov))
+    f_depth: 378.245941162109
+    rgb_ppx: 329.732788085938
+    rgb_ppy: 244.002944946289
+    rgb_fov_h: 69 #unit: degree
+    rgb_fov_w: 42 #unit: degree
+    rgb_image_w: 640
+    rgb_image_h: 480
+    depth_image_w: 640
+    depth_image_h: 480
+    depth_ppx: 321.035797119141
+    depth_ppy: 237.399703979492
+    min_score: 0.7 #目标检测最低置信度
+    cam2body_R: [0.,0.,1.,-1,0.,0.,0.,-1.,0.]
+    cam2body_T: [0.,0.,0]
+    depth_down_sample: 5  #表示数据采样仅为原来的1/depth_down_sample
+    goal_x_t:  0.6  # 规划的目标点应该在目标中心前一点，根据当前速度滞后情况来考虑
+    is_sim: false
+
+cameras_param:
+    rgb_K: [0,0,0,0,0,0,0,0,0,0] # 内参矩阵()
+    depth_K: [0,0,0] #深度相机的内矩阵
+    rgb2depth_R: [1,0,0,0,1,0,0,0,1] #rgb转深度相机旋转矩阵
+    rgb2depth_T: [0,0,0] #rgb转深度相机的平移矩阵

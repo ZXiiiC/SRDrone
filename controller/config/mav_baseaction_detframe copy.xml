@@ -1,0 +1,33 @@
+<root BTCPP_format="4" >
+	<BehaviorTree ID="MainTree">
+		<Fallback>
+			<Sequence name="root">
+				<Script    code=" takeoff_targetGoal:='0;0;1.0' " />
+				<TakeOff   takeoff_target="{takeoff_targetGoal}" />
+				<ForwardDetectFrame   SendPosition="{GoalPosition}" />	
+				<SendPosition   SendPosition="{GoalPosition}" />
+				<MoveBack MoveBack_distance="0.3"/>
+				<MoveRight MoveRight_distance="0.6"/>	
+				<ForwardDetectFrame    SendPosition="{GoalPosition2}" />
+				<SendPosition   SendPosition="{GoalPosition2}" />	
+				<DetectArUco    vel="{GoalVel}" />
+				<Fallback>
+					<Sequence>
+						<DownDetectH    SendVelocity="{GoalVel2}" />
+						<SendVelocity   SendVelocity="{GoalVel2}" />
+						<Action ID="HLand"/>
+					</Sequence>
+					<Sequence>
+						<SendVelocity   SendVelocity="{GoalVel}" />
+						<DownDetectH    SendVelocity="{GoalVel2}" />
+						<SendVelocity   SendVelocity="{GoalVel2}" />
+						<Action ID="HLand"/>
+					</Sequence>
+				</Fallback>	
+				<Action ID="Land"/>		
+			</Sequence>
+			<Action ID="Land"/>
+		</Fallback>	
+	</BehaviorTree>
+</root>
+

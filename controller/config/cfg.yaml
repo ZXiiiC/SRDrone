@@ -1,0 +1,28 @@
+depth_topic: /rflysim/sensor2/img_depth
+auto_arming: true
+takeoff_h: 1.5 #正负号取决与坐标系，如果是用END做飙戏为服务，如果还用NWU 那就是正
+takeoff_yaw: 0
+kx: 0.003  #通过图像中心与目标中心计算的差值，乘以一个系数，计算飞机的速度
+ky: 0.003
+hight_max: 2 #飞行的最高位置
+vx_max: 0.4
+vy_max: 0.4
+is_sim: false # 仿真和真机切换
+rflysim:
+    enable: true
+    f_rgb: 320 # f=img_w / (2*(tan(fov))
+    f_depth: 320
+    rgb_image_w: 640
+    rgb_image_h: 480
+    depth_image_w: 640
+    depth_image_h: 480
+    cam2body_R: [0.,0.,1.,-1,0.,0.,0.,-1.,0.]
+    cam2body_T: [0.,0.,0.3]
+    depth_down_sample: 4  #表示数据采样仅为原来的1/depth_down_sample
+    goal_x_t: 1.5.  # 规划的目标点应该在目标中心前一点，根据当前速度滞后情况来考虑
+
+cameras_param:
+    rgb_K: [0,0,0,0,0,0,0,0,0,0] # 内参矩阵()
+    depth_K: [0,0,0] #深度相机的内矩阵
+    rgb2depth_R: [1,0,0,0,1,0,0,0,1] #rgb转深度相机旋转矩阵
+    rgb2depth_T: [0,0,0] #rgb转深度相机的平移矩阵

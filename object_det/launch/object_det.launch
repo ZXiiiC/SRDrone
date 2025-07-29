@@ -1,0 +1,3 @@
+<launch>
+    <node pkg="object_det" name="object_det" type="test_node.py" output="screen"/>
+</launch>

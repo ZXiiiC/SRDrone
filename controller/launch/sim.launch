@@ -1,0 +1,4 @@
+<launch>
+ <rosparam command="load" file="$(find controller)/config/sim.yaml" />
+ <node pkg="controller" name="controller" type="controller_node" output="screen"/>
+</launch>

@@ -1,0 +1,80 @@
+<root BTCPP_format="4">
+    <BehaviorTree ID="MainTree">
+        <Fallback>
+            <Sequence>
+                <Condition ID="Check_cross_frame1"/>                
+				<Fallback>
+					<Sequence>
+						<Condition ID="Check_result1"/>
+						<Action ID="Cross_frame2"/>
+					</Sequence>
+					<Action ID="Cross_frame1"/>
+				</Fallback>
+            </Sequence>
+            <Sequence>
+                <Condition ID="Check_cross_frame2"/>                
+				<Fallback>
+					<Sequence>
+						<Condition ID="Check_result2"/>
+						<Action ID="Recognize_aruco"/>
+					</Sequence>
+					<Action ID="Cross_frame2"/>
+				</Fallback>
+            </Sequence>			
+            <Sequence>
+                <Condition ID="Check_recognize_aruco"/>                
+				<Action ID="Recognize_H"/>
+            </Sequence>					
+            <Sequence>
+                <Condition ID="Check_recognize_H"/>                
+				<Action ID="Land"/>
+            </Sequence>				
+            <Sequence>
+                <Condition ID="Check_recognize_aruco"/>                
+				<Action ID="Recognize_H"/>
+            </Sequence>	
+		    <Sequence>
+                <Condition ID="Check_Takeoff"/>                
+				<Action ID="Takeoff"/>	
+            </Sequence>		
+		    <Sequence>
+                <Condition ID="Check_recognize_aruco2"/>                
+				<Action ID="Recognize_aruco"/>	
+            </Sequence>		
+		    <Sequence>
+                <Condition ID="Check_recognize_H2"/>                
+				<Action ID="Recognize_H"/>	
+            </Sequence>	
+		    <Sequence>
+                <Condition ID="Check_End"/>                
+				<Action ID="End"/>	
+            </Sequence>		
+		    <Sequence>
+                <Condition ID="Check_Land"/>                
+				<Action ID="Land"/>	
+            </Sequence>							
+        </Fallback>
+    </BehaviorTree>
+	<!-- // -->	
+    <TreeNodesModel>
+        <Action ID="Cross_frame2"/>
+        <Condition ID="Check_cross_frame1"/>
+        <Condition ID="Check_result1"/>
+		<Condition ID="Check_cross_frame2"/>
+		<Condition ID="Check_result2"/>
+		<Condition ID="Check_recognize_aruco"/>
+		<Condition ID="Check_recognize_H"/>
+		<Condition ID="Check_recognize_H2"/>
+		<Condition ID="Check_Takeoff"/>
+		<Condition ID="Check_recognize_aruco2"/>
+		<Condition ID="Check_End"/>
+		<Condition ID="Check_Land"/>
+        <Action ID="Cross_frame1"/>
+        <Action ID="Recognize_aruco"/>
+		<Action ID="Land"/>
+		<Action ID="Recognize_H"/>
+		<Action ID="Takeoff"/>
+		<Action ID="End"/>
+    </TreeNodesModel>
+	<!-- // -->
+</root>
