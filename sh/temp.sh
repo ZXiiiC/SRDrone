@@ -14,7 +14,7 @@ roslaunch faster_lio rflysim.launch &
 sleep 3 
 roslaunch ego_planner rflysim.launch &
 sleep 10 
-roslaunch controller controll.launch
+roslaunch controller control.launch
 
 # cd /home/catkin_ws/src/Challege_ROS/sensor_pkg && python3 main.py &
 # sleep 1 && cd /home/catkin_ws/src/Challege_ROS/object_det/scripts && python3 det.py &

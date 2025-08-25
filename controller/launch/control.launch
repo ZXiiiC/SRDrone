@@ -1,0 +1,6 @@
+<launch>
+ <rosparam command="load" file="$(find controller)/config/control.yaml" />
+ <node pkg="controller" name="controller" type="controller_node" output="screen">
+   <param name="bt_tree_path" type="string" value="$(find controller)/config/mav.xml"/>
+ </node>
+</launch>

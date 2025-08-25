@@ -1,8 +1,0 @@
-<launch>
- <rosparam command="load" file="$(find controller)/config/control.yaml" />
- <node pkg="controller" name="controller" type="controller_node" output="screen">
-    <param name="bt_log_file" type="string" value="$(find controller)/config/BTlog.txt"/>
-    <!-- <param name="bt_tree_path" type="string" value="$(find controller)/config/mav.xml"/> -->
-    <!-- <param name="bt_tree_path" type="string" value="/home/nvidia/catkin_ws/test.xml"/> -->
- </node>
-</launch>
