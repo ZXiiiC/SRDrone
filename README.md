@@ -253,7 +253,7 @@ We thank the following open-source projects and communities:
 
 ## 📞 Contact
 
-- **Primary Maintainer**: [Your Name](mailto:your.email@university.edu)
+- **Primary Maintainer**: [Xicheng Zhang](csu_xichengzhang@csu.edu.cn)
 - **Issues**: [GitHub Issues](https://github.com/your-repo/SRDrone/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/your-repo/SRDrone/discussions)
 
@@ -262,12 +262,11 @@ We thank the following open-source projects and communities:
 If you use this work in your research, please cite our paper:
 
 ```bibtex
-@article{srdrone2024,
-  title={SRDrone: LLM-Driven Autonomous UAV Planning System with Continuous Evaluation and Reflective Optimization},
-  author={[Author Names]},
-  journal={[Journal/Conference]},
-  year={2024},
-  url={[Paper URL]}
+@article{zhang2025llm,
+  title={LLM-Driven Self-Refinement for Embodied Drone Task Planning},
+  author={Zhang, Deyu and Zhang, Xicheng and Li, Jiahao and Long, Tingting and Dai, Xunhua and Fu, Yongjian and Zhang, Jinrui and Ren, Ju and Zhang, Yaoxue},
+  journal={arXiv preprint arXiv:2508.15501},
+  year={2025}
 }
 ```
 
