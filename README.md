@@ -1,6 +1,6 @@
 # SRDrone: LLM-Driven Autonomous UAV Planning System with Continuous Evaluation and Reflective Optimization
 
-[![Paper](https://img.shields.io/badge/Paper-arXiv-red)](https://arxiv.org/abs/TODO) <!-- TODO: Update with actual paper URL -->
+[![Paper](https://img.shields.io/badge/Paper-arXiv-red)](https://arxiv.org/abs/2508.15501) 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![ROS](https://img.shields.io/badge/ROS-1%20Melodic%2FNoetic-green.svg)](http://www.ros.org)
 [![Language](https://img.shields.io/badge/Language-C%2B%2B17%20%7C%20Python%203-blue.svg)](https://isocpp.org/)
