@@ -1,0 +1,81 @@
+# ROS/Catkin build artifacts
+build/
+devel/
+install/
+*.egg-info/
+dist/
+develop-eggs/
+.eggs/
+lib64/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# C++ build artifacts
+*.o
+*.a
+*.so
+*.dylib
+CMakeFiles/
+*.cmake
+Makefile
+*.out
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-project
+*.sublime-workspace
+.project
+.cproject
+.classpath
+
+# ROS specific
+.catkin_tools/
+*.bag
+*.bagidx
+
+# Build directories
+*.dblite
+*.db
+
+# Executables
+*.exe
+*.app
+
+# Temporary files
+*.bak
+*.tmp
+*.log
+
+# OpenCV and other large files
+*.so.*
+*.la
+*.o
+
+# Python virtual environments
+venv/
+ENV/
+
+# Node modules (if using web tools)
+node_modules/
+package-lock.json
+
+# Misc
+.env
+.env.local
+*.DS_Store
+Thumbs.db
