@@ -44,14 +44,20 @@ SRDrone
 │   ├── config/mav.xml             # Behavior tree definition
 │   └── config/*.yaml              # Configuration parameters
 ├── evaluator/                      # 🆕 Task execution evaluation module
-│   └── README.md                  # TODO: Implementation roadmap
+│   ├── pipeline.py                # 3.2 evaluator pipeline scaffold
+│   └── ARCHITECTURE.md            # Evaluator design notes
 ├── reflector/                      # 🆕 Reflective optimization module  
-│   └── README.md                  # TODO: Implementation roadmap
+│   ├── pipeline.py                # 3.3 reflector pipeline scaffold
+│   └── ARCHITECTURE.md            # Reflector design notes
 ├── object_det/                     # Object detection module (Python)
 │   ├── scripts/det.py             # Main detection node (YOLO)
 │   └── scripts/ObjectDetect.py    # YOLO inference core
 ├── recognize_aruco/                # ArUco marker recognition
 ├── sensor_pkg/                     # Sensor driver and data adaptation
+├── workflow/                       # Closed-loop orchestration scaffold
+│   ├── cli.py                     # Workflow runner
+│   ├── parsers/controller_btlog.py# BTlog session parser
+│   └── IMPLEMENTATION_3_2_3_3.md  # Implementation notes
 └── sh/                            # System launch scripts
 ```
 
@@ -166,6 +172,30 @@ Edit `controller/config/mav.xml` to customize mission workflows:
 </root>
 ```
 
+### Workflow Mode (Paper 3.2/3.3 Scaffold)
+
+Run the closed-loop scaffold (default reads `controller/config/BTlog.txt`):
+
+```bash
+python3 -m workflow.cli \
+  --mission-id demo_mission \
+  --max-cycles 1 \
+  --state-source controller_log \
+  --controller-log-path controller/config/BTlog.txt
+```
+
+Notes:
+- Stage-A input source is controller-filtered BT logs (no duplicate filtering in workflow).
+- BTlog is parsed per run session: one `plan XML` block (`<root ...>...</root>`) + following `filtered log` block.
+- Session selection policy is reverse chronological (`cycle=0` uses latest session).
+- Evaluator/Reflector stages are **text-first** outputs (LLM free-form text), with optional structured fields for engineering/debug.
+
+Use stub input source for local debugging:
+
+```bash
+python3 -m workflow.cli --state-source stub --max-cycles 1
+```
+
 ## 📊 Performance Metrics
 
 ### Evaluation Framework
@@ -221,6 +251,7 @@ This implementation is based on the following research contributions:
 - [Algorithm Details](docs/algorithms.md) - Core algorithm explanations
 - [Configuration Guide](docs/configuration.md) - System configuration options
 - [Troubleshooting](docs/troubleshooting.md) - Common issues and solutions
+- [Workflow Notes](workflow/IMPLEMENTATION_3_2_3_3.md) - Current 3.2/3.3 scaffold implementation details
 
 ## 🤝 Contributing
 

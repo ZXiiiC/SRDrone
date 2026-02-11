@@ -1,0 +1,7 @@
+workflow:
+  mission_id: demo_mission
+  bt_id: main_bt
+  bt_path: controller/config/mav.xml
+  max_cycles: 3
+  experience_store: workflow/data/experience_records.jsonl
+
