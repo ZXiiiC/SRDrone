@@ -60,6 +60,7 @@ Makefile
 *.bak
 *.tmp
 *.log
+tmp/
 
 # OpenCV and other large files
 *.so.*
@@ -79,3 +80,6 @@ package-lock.json
 .env.local
 *.DS_Store
 Thumbs.db
+
+# Workflow runtime artifacts
+workflow/data/*.jsonl
