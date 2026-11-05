@@ -1,65 +1,40 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
-
-from workflow.parsers.controller_btlog import parse_btlog_sessions, select_session_for_cycle
 
 from workflow.core.interfaces import StateProvider
 from workflow.core.models import ExecutionSnapshot, MissionContext
+from workflow.parsers.controller_btlog import parse_btlog_sessions, select_session_for_cycle
 
 
 class ControllerLogStateProvider(StateProvider):
-    """State provider that reads action-centric filtered logs from controller output."""
+    """Historical replay, not an executor for newly generated plans."""
 
-    def __init__(self, log_path: str, max_lines: int = 120) -> None:
+    def __init__(self, log_path: str, max_lines: int | None = None) -> None:
         self._log_path = Path(log_path)
-        self._max_lines = max_lines
+        if max_lines is not None:
+            raise ValueError("Log truncation is disabled: full action history is required")
 
     def capture(self, mission: MissionContext, cycle_index: int) -> ExecutionSnapshot:
-        if not self._log_path.exists():
-            filtered_text = (
-                f"[controller_log_missing] path={self._log_path}. "
-                "No filtered action log found for this cycle."
-            )
-            plan_xml = ""
-            session_index = -1
-            session_count = 0
-            source_exists = False
-        else:
-            raw_text = self._log_path.read_text(encoding="utf-8", errors="ignore")
-            sessions = parse_btlog_sessions(raw_text)
-            session_count = len(sessions)
-            selected = select_session_for_cycle(sessions=sessions, cycle_index=cycle_index)
-
-            if selected is None:
-                plan_xml = ""
-                session_index = -1
-                filtered_text = (
-                    "[controller_log_parse_empty] No '<root>... </root>' session parsed from BTlog."
-                )
-            else:
-                plan_xml = selected.plan_xml
-                session_index = selected.session_index
-                filtered_lines = selected.filtered_log_text.splitlines()
-                filtered_window = filtered_lines[-self._max_lines :] if filtered_lines else []
-                filtered_text = "\n".join(filtered_window)
-
-            source_exists = True
-
+        sessions = parse_btlog_sessions(self._log_path.read_text(encoding="utf-8"))
+        selected = select_session_for_cycle(sessions, cycle_index)
+        if selected is None:
+            raise ValueError("No unused complete historical BTlog session")
+        if not selected.filtered_log_text:
+            raise ValueError("Selected session contains a plan but no execution events")
         return ExecutionSnapshot(
-            timestamp=datetime.utcnow(),
-            cycle_index=cycle_index,
-            state_payload={
+            datetime.now(timezone.utc),
+            cycle_index,
+            {
                 "mission_id": mission.mission_id,
                 "bt_id": mission.bt_id,
-                "status": "controller_filtered_log",
                 "log_source": str(self._log_path),
-                "log_source_exists": source_exists,
-                "log_session_index": session_index,
-                "log_session_count": session_count,
-                "plan_xml": plan_xml,
-                "filtered_log_text": filtered_text,
-                "notes": "Action-Centric filtering is provided by controller log sessions.",
+                "log_session_index": selected.session_index,
+                "log_session_count": len(sessions),
+                "plan_xml": selected.plan_xml,
+                "filtered_log_text": selected.filtered_log_text,
+                "execution_kind": "historical_replay",
+                "root_status": "unknown",
             },
         )

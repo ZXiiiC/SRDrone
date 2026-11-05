@@ -1,0 +1,34 @@
+[System]:Based on the logs with data deviations from the drone's execution of the behavior tree, reconstruct the spatial state of the drone's behavior tree execution under ideal conditions.
+[User]:
+###Drone Log###
+
+---------
+###Behavior Tree###
+
+---------
+###Sample###
+Drone log:
+Takeoff finished. drone pose[nwu,yaw]:(0.0023708, -0.000613636, 1.95051, -2.20782e-05)
+MoveForward target distance: [2]
+MoveForward finished. drone pose [nwu,yaw] (1.89877, 1.01103, 1.98711, -0.221359)
+TurnRight degrees: [90]
+TurnRight finished. drone pose [nwu,yaw]:(2.12283, 0.71407, 2.00065, -90.6465)
+ForwardDetectFrame frame position [nwu]:(-0.754542, 1.29841, 1.17533)
+ForwardDetectFrame finished. drone pose [nwu,yaw]:(2.0107215, 1.033812, 1.9433, -89.8534)
+Behavior tree:
+<FlyToCoordinates coordinates="0;1;2" />
+<MoveForward MoveForward_distance="2" />
+<TurnRight turn_attitude="90"/>
+<ForwardDetectFrame FramePosition="{frame_position}" />
+Output:
+Takeoff Drone Pose [North, West, Up, Yaw] (0, 1, 2, 0)
+MoveForward Drone Pose [North, West, Up, Yaw] (2, 1, 2, 0)
+TurnRight Drone Pose [North, West, Up, Yaw] (2, 1, 2, -90)
+ForwardDetectFrame Frame Position [North, West, Up] (-0.754542, 1.29841, 1.17533)
+ForwardDetectFrame Drone Pose [North, West, Up, Yaw] (2, 1, 2, -90)
+
+###Output Format###
+Yout output should only contains
+ActionNode Drone Pose [North, West, Up, Yaw](coordinates)
+ActionNode target Position [North, West, Up](coordinates)
+ActionNode Failed

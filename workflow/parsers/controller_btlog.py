@@ -1,13 +1,17 @@
+"""Session parser for historical controller BTlog files (replay only)."""
+
 from __future__ import annotations
 
+import re
+import xml.etree.ElementTree as ET
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import Optional
+
+from srdrone.bt import parse_xml
 
 
 @dataclass
 class BTLogSession:
-    """One controller log session: plan XML + filtered action log."""
-
     session_index: int
     plan_xml: str
     filtered_log_text: str
@@ -15,82 +19,41 @@ class BTLogSession:
     plan_end_line: int
 
 
-def parse_btlog_sessions(raw_text: str) -> List[BTLogSession]:
-    """Split BTlog into sessions.
+def parse_btlog_sessions(raw_text: str) -> list[BTLogSession]:
+    """Accept single/multiline XML, isolate logs from the next (even partial) plan.
 
-    Session format (as observed in controller log):
-      1) one `<root ...> ... </root>` plan block
-      2) following lines as filtered log
-      3) next `<root ...>` begins a new session
+    Incomplete or malformed XML is not a session. A complete plan with an empty
+    log remains visible to the caller as an unexecuted/incomplete run.
     """
-
-    lines = raw_text.splitlines()
-    sessions: List[BTLogSession] = []
-
-    cursor = 0
-    session_id = 0
-    total_lines = len(lines)
-
-    while cursor < total_lines:
-        plan_start = _find_next_root_start(lines, cursor)
-        if plan_start is None:
-            break
-
-        plan_end = _find_root_end(lines, plan_start)
-        if plan_end is None:
-            plan_end = total_lines - 1
-
-        next_plan_start = _find_next_root_start(lines, plan_end + 1)
-        if next_plan_start is None:
-            filtered_lines = lines[plan_end + 1 :]
-            cursor = total_lines
-        else:
-            filtered_lines = lines[plan_end + 1 : next_plan_start]
-            cursor = next_plan_start
-
-        plan_xml = "\n".join(lines[plan_start : plan_end + 1]).strip()
-        filtered_log_text = "\n".join(filtered_lines).strip()
-
+    starts = list(re.finditer(r"<root\b", raw_text))
+    sessions = []
+    for index, start in enumerate(starts):
+        end = starts[index + 1].start() if index + 1 < len(starts) else len(raw_text)
+        block = raw_text[start.start() : end]
+        close = re.search(r"</root\s*>", block)
+        if not close:
+            continue
+        xml = block[: close.end()]
+        try:
+            parse_xml(xml)
+        except (ET.ParseError, ValueError):
+            continue
         sessions.append(
             BTLogSession(
-                session_index=session_id,
-                plan_xml=plan_xml,
-                filtered_log_text=filtered_log_text,
-                plan_start_line=plan_start + 1,
-                plan_end_line=plan_end + 1,
+                session_index=index,
+                plan_xml=xml,
+                filtered_log_text=block[close.end() :].strip(),
+                plan_start_line=raw_text[: start.start()].count("\n") + 1,
+                plan_end_line=raw_text[: start.start() + close.end()].count("\n") + 1,
             )
         )
-        session_id += 1
-
     return sessions
 
 
 def select_session_for_cycle(
-    sessions: List[BTLogSession],
-    cycle_index: int,
+    sessions: list[BTLogSession], cycle_index: int
 ) -> Optional[BTLogSession]:
-    """Select session for a workflow cycle.
-
-    Policy: cycle 0 -> latest session, cycle 1 -> second latest, etc.
-    """
-
-    if not sessions:
+    """Latest-first historical replay; never repeat oldest data on exhaustion."""
+    if not 0 <= cycle_index < len(sessions):
         return None
-
-    reverse_index = min(max(cycle_index, 0), len(sessions) - 1)
-    return sessions[-1 - reverse_index]
-
-
-def _find_next_root_start(lines: List[str], start: int) -> Optional[int]:
-    for index in range(start, len(lines)):
-        if lines[index].lstrip().startswith("<root"):
-            return index
-    return None
-
-
-def _find_root_end(lines: List[str], start: int) -> Optional[int]:
-    for index in range(start, len(lines)):
-        if lines[index].strip() == "</root>":
-            return index
-    return None
-
+    return sessions[-1 - cycle_index]

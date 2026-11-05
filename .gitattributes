@@ -1,0 +1,2 @@
+# Archival prompt excerpts retain source whitespace for verifiable hashes.
+srdrone/prompts/recovered/*.txt -whitespace

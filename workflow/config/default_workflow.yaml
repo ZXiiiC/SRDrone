@@ -1,7 +1,9 @@
+# Documentation-only defaults. CLI flags are authoritative; this file is not loaded.
 workflow:
-  mission_id: demo_mission
-  bt_id: main_bt
-  bt_path: controller/config/mav.xml
-  max_cycles: 3
-  experience_store: workflow/data/experience_records.jsonl
-
+  entry_point: python -m srdrone
+  task: required
+  output: runs/mission
+  max_refinements: 5
+  experience_bank: workflow/data/experience.sqlite3
+  retriever: mpnet
+  top_k: 3

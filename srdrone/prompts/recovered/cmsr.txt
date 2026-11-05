@@ -1,0 +1,37 @@
+[System]:Visualize the drone ego-motion and reason spartial relations with environment
+###Task###
+
+---------
+###Scene Info###
+{
+    "object_name": "",         // Name of the object
+    "coordinates": {       // NWU coordinates
+        "north": ,         // North (X-axis) value
+        "west": ,          // West (Y-axis) value
+        "yaw":             // Yaw angle in degrees, relative to the drone's takeoff point
+    },
+}
+--------
+###Drone Trajectory###
+The log of the drone executing the plan in the simulation environment indicates that, since it is in a simulation, the drone will continue to operate normally even if a collision occurs.
+
+---------
+###Requirements###
+1.for each action in trajectory, reason:
+(1)behavior_type: Action classification (e.g., "ForwardDetect")
+(2)displacement: Relative position change as directional
+descriptors (e.g., "Move forward 1m")
+(3)orientation_change: Yaw variation as rotational seman-
+tics (e.g., "Turn Left 45 degrees")
+
+2.for each information capture node in trajectory，reason:
+{Navigational Intent}: Determines target approach vectors (e.g., "aligning with landing marker") by comparing drone motion trends with target coordinates, translating trajectory patterns into intentional navigation semantics for mission completion assessment.
+{Proximity Awareness}: Quantifies spatial relationships with key waypoints (e.g., "within 2m of obstacles") by analyzing distances to critical coordinates, transforming positional data into actionable proximity metrics for execution precision evaluation.
+{Collision-Centric Safety}: Detects obstacle avoidance states (e.g., "circumnavigating obstacle B") through geometric containment checks considering drone dimensions, generating safety semantics primarily for virtual environment trajectory adjustment.
+\end{itemize}
+
+3.Sample output1:
+The drone takes off, ascends by 1 meter, and keeps a clearance of 2 meters from the ceiling, drone pose[nwu,yaw](0.05, 0.03, 0.96, 0.10).
+The drone forward detect balloon, the balloon at (0.79, 0.71, 1.47)
+The drone flytocoordinate, fly towards the target, drone pose[nwu,yaw](0.73, 0.65, 1.44, 0.10).
+

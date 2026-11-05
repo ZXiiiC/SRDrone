@@ -1,0 +1,7 @@
+Takeoff finished. drone pose[nwu,yaw]:(0, 0, 1.5, 0)
+ForwardDetectFrame frame position [nwu]:(2, 0, 1.5)
+ForwardDetectFrame finished. drone pose [nwu,yaw]:(0, 0, 1.5, 0)
+FlyToCoordinates finished. drone pose [nwu,yaw] (2, 0, 1.5, 0)
+MoveForward target distance: [ 1 ]
+MoveForward finished. drone pose [nwu,yaw] [ 3, 0, 1.5, 0)
+Land finished. drone pose [nwu,yaw]:(3, 0, 0, 0)

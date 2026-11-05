@@ -994,10 +994,16 @@ class TakeOff: public SyncActionNode
           }
           if(abs(fcu_pose.pose.position.z - target.z) < 0.1 && !is_takeoff)
           {
-              ROS_INFO("takeoff finished");
-              last_request = ros::Time::now();
-              is_takeoff = true;
-              return NodeStatus::SUCCESS;
+            ROS_INFO("takeoff finished");
+            log_file_ << "Takeoff finished. drone pose[nwu,yaw]:("
+                      << fcu_pose.pose.position.x << ", "
+                      << fcu_pose.pose.position.y << ", "
+                      << fcu_pose.pose.position.z << ", "
+                      << rad2deg(current_yaw) << ")\n";
+            log_file_.flush();
+            last_request = ros::Time::now();
+            is_takeoff = true;
+            return NodeStatus::SUCCESS;
           }
           if(!is_takeoff)
           {
@@ -3372,15 +3378,20 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "offb_node");
     ros::NodeHandle nh;
     std::string depth_topic = "/camera/depth/image_raw";
-    std::string bt_log_file = "/home/nvidia/catkin_ws/src/RFLYBT/controller/config/BTlog.txt";
-    std::string bt_tree_path = "/home/nvidia/catkin_ws/test.xml";
+    ros::NodeHandle private_nh("~");
+    std::string bt_log_file;
+    std::string bt_tree_path;
     nh.param("depth_topic", depth_topic, std::string("/camera/depth/image_raw"));
-    nh.param("bt_log_file", bt_log_file, std::string("/home/nvidia/catkin_ws/src/RFLYBT/controller/config/BTlog.txt"));
-    // nh.param("bt_tree_path", bt_tree_path, std::string("/home/nvidia/catkin_ws/src/RFLYBT/controller/config/default.xml"));
+    private_nh.param<std::string>("bt_log_file", bt_log_file, "");
+    private_nh.param<std::string>("bt_tree_path", bt_tree_path, "");
+    if (bt_tree_path.empty() || bt_log_file.empty()) {
+      ROS_ERROR("Set private parameters ~bt_tree_path and ~bt_log_file");
+      return 1;
+    }
     nh.param("cameras_param/rgb_K", cam.rgb_K, std::vector<double>());
     nh.param("cameras_param/depth_K", cam.depth_K, std::vector<double>());
     nh.param("cameras_param/rgb2depth_R", cam.rgb2depth_R,
-                std::vector<double>());
+             std::vector<double>());
     nh.param("cameras_param/rgb2depth_T", cam.rgb2depth_T,
                 std::vector<double>());
     nh.param("rflysim/enable", rflysim_p.enable, true);
@@ -3495,6 +3506,7 @@ int main(int argc, char **argv)
     if (!log_file_.is_open())
     {
         ROS_ERROR("Failed to open log file");
+        return 1;
     }
     std::ifstream bt_file(bt_tree_path);
     if (!bt_file)
@@ -3508,10 +3520,9 @@ int main(int argc, char **argv)
         log_file_.put(ch);
     }
     bt_file.close();
+    log_file_ << "\n";
+    log_file_.flush();
     BT::BehaviorTreeFactory factory;
-
-
-    
 
     // wait for FCU connection
     ROS_INFO("000000000000000000000000");
@@ -3575,11 +3586,14 @@ int main(int argc, char **argv)
 
     
     ROS_INFO("BT START");
-  
 
     ROS_INFO("BT register end");
-    tree.tickWhileRunning();
-
+    const BT::NodeStatus root_status = tree.tickWhileRunning();
+    log_file_ << "BT_ROOT_STATUS: "
+              << (root_status == BT::NodeStatus::SUCCESS ? "SUCCESS"
+                                                         : "FAILURE")
+              << "\n";
+    log_file_.flush();
 
     // mavros_msgs::PositionTarget cmd;
     //是否需要控制角度与角速度，如果需要放开注释

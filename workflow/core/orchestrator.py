@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import asdict
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List
 
 from .experience_store import ExperienceStore
@@ -10,7 +10,10 @@ from .models import ExperienceRecord, MissionContext, WorkflowCycleOutput
 
 
 class WorkflowOrchestrator:
-    """Closed-loop workflow scaffold for SRDrone paper pipeline."""
+    """Legacy historical-analysis orchestrator.
+
+    It does not execute corrected plans. Use srdrone.runner.RefinementRunner
+    for the actual execute/evaluate/refine loop."""
 
     def __init__(
         self,
@@ -50,7 +53,7 @@ class WorkflowOrchestrator:
                     snapshot=asdict(snapshot),
                     evaluation=asdict(evaluation),
                     reflection=asdict(reflection),
-                    created_at=datetime.utcnow().isoformat(),
+                    created_at=datetime.now(timezone.utc).isoformat(),
                 )
             )
 
@@ -58,4 +61,3 @@ class WorkflowOrchestrator:
                 break
 
         return outputs
-

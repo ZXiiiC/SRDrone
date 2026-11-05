@@ -1,0 +1,56 @@
+[System]:Control the drone to correctly execute tasks.
+[User]:
+###Task###
+
+---------
+###Scene Descprition###
+The safe flying height should not exceed 2 meters.
+North coordinate range from (0,6)
+West coordinate range from (-2,2)
+
+
+---------
+###Experience###
+Experience learned from past failures, ranked by importance.
+
+---------
+###ActionSpace###
+Drone uses NWU coordinate system, N-axis pointing forward, the W-axis to the left, and the U-axis upward The yaw angle indicates the drone's horizontal rotation relative to the N-axis, with counterclockwise rotation being positive.
+Use {} to represent a reference to an entry.
+<TakeOff takeoff_target="n;w;u" />Take off to nwu takeoff_target. The takeoff should be the first action performed by the drone.
+<FlyToCoordinates coordinates="n;w;u" />Fly to nwu coordinates
+<FlyToCoordinates coordinates="{entry_name}" />Fly to a Position3D entry coordinates saved in {entry_name}.
+<MoveForward MoveForward_distance="dis" />move forward distance, Forward can replace with Back/Right/Left/Up/Down
+<SetYawAngle yaw="x" />Change the yaw angle to x degrees
+<TurnLeft turn_attitude="x"/>Turn left x degrees relative to the current angle.
+<TurnRight turn_attitude="x"/>Turn right x degrees relative to the current angle.
+<Land />Drone must land at last
+<ForwardDetectFrame FramePosition="{frame_position}" />Detect the square frames within the field of view of the forward camera. Save the Position3D result to {entry_name}.
+<ForwardDetectBalloon BalloonPosition="{entry_name}" />
+<DownScanHtag />Use the downward-facing camera of the drone to scan for an Htag below. If there is no Htag, the node execution fails.                                                   
+---------
+###Logic Space###
+The logical control nodes available for use include only:
+<Repeat num_cycles="3">Repeat the execution of the child node until it fails or reaches the specified number of times. The number of num_cycles should not exceed five.
+<RetryUntilSuccessful num_attempts="3">Retry the child node until it succeeds or reaches the maximum number of attempts.The number of attempts should not exceed five.
+<Fallback> Executes child nodes in order, moving to the next on failure. Returns failure if all nodes fail. Used for optional alternatives. 
+<Sequence> Executes child nodes in order, returning success only if all succeed. Fails immediately if any node fails. Suitable for sequential tasks.
+---------
+###Advice###
+1.Only use behaviors from the Action Space.
+2.Only use logical nodes from the Logic Space.
+3.Avoid using excessively small adjustment amounts to ensure sensor accuracy and the effectiveness of the control system's response.
+4.Your output should can be used directly without any modifications or additional data.
+Output sample:
+<root BTCPP_format="4">
+  <BehaviorTree ID="MainTree">
+    <Sequence>
+      <TakeOff takeoff_target="0;0;1.5" />
+      <DetectTarget TargetPosition="{target_position}" />
+      <FlyToCoordinates coordinates="{target_position}" />
+      <Land />
+    </Sequence>
+  </BehaviorTree>
+</root>
+
+

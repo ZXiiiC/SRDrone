@@ -1,0 +1,25 @@
+[system]
+Analyze the gap between task requirement and current plan
+[User]
+###Originally planned behavior tree###
+
+---------
+###Task execution result###
+
+---------
+Your output format should be:
+{
+  "target": [], // The target of Analysis, can be name of "action_node", "logic_node", or only "whole_plan"
+  "problem_Analysis": "" // Detailed Analysis of the problem, including the context in which it occurs, its impact, etc.
+}
+If needed, you can provide several analyses at once, ensuring that each analysis gives a brief and clear analysis for the target.
+Output Sample1:
+{
+  "target": "SetYawAngle", 
+  "problem_Analysis": "The angle range set by SetYawAngle is limited, which restricts the drone's search area." 
+}
+Output Sample2:
+{
+    "suggestion_target": "Sequence",
+    "problem_Analysis": "The sequence logic node fails immediately if any node fails. In this case, if the drone fails to detect the frame in its forward field of view, the entire sequence fails."
+}
