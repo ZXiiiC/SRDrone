@@ -1,308 +1,197 @@
-# SRDrone: LLM-Driven Autonomous UAV Planning System with Continuous Evaluation and Reflective Optimization
+# SRDrone: LLM-Driven Self-Refinement for Embodied Drone Task Planning
 
-[![Paper](https://img.shields.io/badge/Paper-arXiv-red)](https://arxiv.org/abs/2508.15501) 
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![ROS](https://img.shields.io/badge/ROS-1%20Melodic%2FNoetic-green.svg)](http://www.ros.org)
-[![Language](https://img.shields.io/badge/Language-C%2B%2B17%20%7C%20Python%203-blue.svg)](https://isocpp.org/)
+[![Python runtime CI](https://github.com/ZXiiiC/SRDrone/actions/workflows/python.yml/badge.svg?branch=main)](https://github.com/ZXiiiC/SRDrone/actions/workflows/python.yml)
+[![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue)](pyproject.toml)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue)](LICENSE)
 
-## 📖 Overview
+Code accompanying [SRDrone (IEEE Transactions on Mobile Computing, 2026)](https://doi.org/10.1109/TMC.2026.3664806).
 
-**SRDrone** is an open-source implementation of the LLM-driven autonomous UAV planning system presented in our research paper. The system achieves two key goals: (1) robustly evaluating task execution outcomes to detect planning flaws, and (2) driving progressive refinement to ensure successful task completion.
+[Quick start](#run-the-offline-demonstration) · [Model setup](#use-a-language-model) · [ROS1 integration](docs/EXECUTION.md) · [中文恢复说明](docs/RECOVERY.zh-CN.md)
 
-### 🎯 Research Contributions
+SRDrone evaluates a drone's full action history, diagnoses failed behavior-tree (BT) plans, and refines them using structured reflective experience. This repository contains the original public ROS1 controller/perception stack and a **reconstructed Python planning runtime**, implemented from the published paper and the author's surviving research notebook. See [recovery provenance](docs/RECOVERY.md) and [中文恢复说明](docs/RECOVERY.zh-CN.md).
 
-This work makes the following key contributions to the field of autonomous aerial robotics:
+The `main` branch includes BT generation, continuous state evaluation, hierarchical reflection, deterministic XML validation, persistent experience storage, and execution adapters. Start with the offline demonstration, then configure a model provider and an execution environment.
 
-1. **Continuous State Evaluation Framework**: Enables reliable outcome determination and interpretable anomaly attribution for drone operations through Action-Centric State Capture and CMSR algorithm.
+## System workflow
 
-2. **Hierarchical BT Modification**: Facilitates a two-stage refinement process that generates structural reflective experience and guarantees the reliability of behavior tree refinements.
-
-3. **Closed-Loop Learning System**: Establishes an iterative improvement mechanism where each cycle updates the Experience Base with validated corrections, enabling continuous planning enhancement.
-
-## 🏗️ System Architecture
-
-The system consists of two main phases:
-
-### Task Execution Phase
-- **Action-Centric State Capture**: Filters critical flight states from high-frequency drone data streams
-- **CMSR Algorithm**: Performs spatiotemporal semantic extraction, converting multidimensional temporal sensor data into natural language task narratives
-- **Task Determination**: Generates interpretable diagnostic insights for subsequent planning optimization
-
-### Reflective Optimization Phase  
-- **Hierarchical BT Analysis**: Localizes errors across behavioral execution, logical conditions, and planning structure
-- **Dual-Constraint Processing**: Ensures operational feasibility within hardware/software boundaries and structural validity
-- **Node-Level Correction**: Generates precise correction specifications for behavioral and logical nodes
-
-## 📁 Project Structure
-
-```
-SRDrone
-├── common_msgs/                    # Custom ROS message definitions
-│   ├── msg/                        # Message types (Aruco, Obj, Objects, MissionState)
-├── controller/                     # Flight control module (C++17)
-│   ├── src/ros1_node.cpp          # Main control node (BehaviorTree engine)
-│   ├── config/mav.xml             # Behavior tree definition
-│   └── config/*.yaml              # Configuration parameters
-├── evaluator/                      # 🆕 Task execution evaluation module
-│   ├── pipeline.py                # 3.2 evaluator pipeline scaffold
-│   └── ARCHITECTURE.md            # Evaluator design notes
-├── reflector/                      # 🆕 Reflective optimization module  
-│   ├── pipeline.py                # 3.3 reflector pipeline scaffold
-│   └── ARCHITECTURE.md            # Reflector design notes
-├── object_det/                     # Object detection module (Python)
-│   ├── scripts/det.py             # Main detection node (YOLO)
-│   └── scripts/ObjectDetect.py    # YOLO inference core
-├── recognize_aruco/                # ArUco marker recognition
-├── sensor_pkg/                     # Sensor driver and data adaptation
-├── workflow/                       # Closed-loop orchestration scaffold
-│   ├── cli.py                     # Workflow runner
-│   ├── parsers/controller_btlog.py# BTlog session parser
-│   └── IMPLEMENTATION_3_2_3_3.md  # Implementation notes
-└── sh/                            # System launch scripts
+```mermaid
+flowchart LR
+    Task[Task and scene] --> Planner[BT generation]
+    Experience[(Experience base)] --> Planner
+    Planner --> Validator[Deterministic BT validation]
+    Validator --> Executor[Execution adapter]
+    Executor --> Logs[Action-centric state logs]
+    Logs --> Evaluator[CMSR and task evaluation]
+    Evaluator --> Outcome{Task outcome}
+    Outcome -->|Failure| Reflector[Action / logic / mission reflection]
+    Reflector --> Candidate[Structured experience and corrected BT]
+    Candidate --> Validator
+    Candidate -->|Proposed experience| Experience
+    Outcome -->|Success| Validated[Validate matching candidate experience]
+    Validated --> Experience
+    Outcome -->|Unknown| Evidence[Acquire more execution evidence]
 ```
 
-## 🚀 Key Features
+A completed BT and a successful mission are evaluated separately. Corrections are checked against the controller interface before execution, and experience validation requires a fresh execution associated with the corrected plan.
 
-### 🧠 Intelligent Decision Making
-- **Behavior Tree Framework**: Modular and extensible task decision logic using BehaviorTree.CPP
-- **Multi-Source Perception**: YOLO deep learning object detection + ArUco marker recognition
-- **Sensor Fusion**: GNSS/IMU data fusion (Faster-LIO/Ego-Planner stack)
+## Run the offline demonstration
 
-### 🎯 Advanced Capabilities
-- **Visual Servoing**: Multi-camera parallel processing (forward + downward views)
-- **Adaptive Planning**: Real-time trajectory planning and execution
-- **Continuous Learning**: Closed-loop improvement through experience accumulation
-
-### 🔧 Comprehensive Integration
-- **Simulation Support**: RflySim virtual simulation environment
-- **Hardware Support**: RealSense/Livox hardware compatibility  
-- **System Orchestration**: Automated launch scripts coordinating multiple ROS nodes
-
-## 📋 Installation
-
-### System Requirements
-- **OS**: Ubuntu 18.04/20.04 LTS
-- **ROS**: ROS1 Melodic/Noetic
-- **C++**: C++17 standard
-- **GPU**: Optional (CUDA 10.2+, cuDNN 7.6+ for YOLO acceleration)
-
-### Quick Start
+Python 3.10+ is required. The core Python runtime has no third-party dependencies and does not require ROS, a GPU, an API key, or a drone.
 
 ```bash
-# 1. Create ROS workspace
-mkdir -p ~/catkin_ws/src
-cd ~/catkin_ws
-
-# 2. Clone repository
-cd src
-git clone https://github.com/your-repo/SRDrone.git
-cd ..
-
-# 3. Install dependencies
-rosdep install --from-paths src --ignore-src -r -y
-
-# 4. Build project
-catkin build
-
-# 5. Source environment
-source devel/setup.bash
+git clone --branch main https://github.com/ZXiiiC/SRDrone.git
+cd SRDrone
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -e .
+python -m srdrone demo --output runs/demo
+python -m unittest discover -s srdrone/test -v
 ```
 
-### Dependencies
+The demo exercises this complete sequence:
 
-#### Core Dependencies
-| Package | Purpose | License |
-|---------|---------|---------|
-| ROS1 | Middleware | BSD |
-| BehaviorTree.CPP | Decision Framework | MIT |
-| YOLO v5/v8 | Object Detection | AGPL-3.0 |
-| OpenCV | Image Processing | Apache-2.0 |
-| PCL | Point Cloud Processing | BSD |
-| MAVROS | Flight Controller Interface | BSD |
+1. Read an initial BT and its execution keyframes.
+2. Reconstruct an auxiliary ideal trajectory and derive CMSR motion/spatial semantics.
+3. Identify a plan-level failure: the BT finishes, but the drone reaches the frame center without passing through it.
+4. Diagnose action/logic/mission layers and produce `[OPERATION] + [RATIONALE]` experience.
+5. Generate a corrected BT and validate its nodes, ports, structure, and blackboard references.
+6. Evaluate a **second execution fixture associated with the corrected plan** and update experience provenance.
 
-#### External Planning Stack
-- **Faster-LIO**: GNSS-IMU fusion localization
-- **Ego-Planner**: Trajectory planning
-- **RflySim**: Virtual simulation platform
+Inspect these artifacts under `runs/demo/`:
 
-## 🎮 Usage
+- `cycle-000/result.json`: initial task evaluation and reflection.
+- `cycle-000/candidate.xml`: corrected and syntax-validated BT.
+- `cycle-001/result.json`: evaluation of the matching second execution fixture.
+- `summary.json`: execution count and final task outcome.
 
-### Simulation Mode
+The fixture includes manually authored model responses and trajectories; it verifies software behavior rather than experimental performance. Use a fresh output directory for every run.
+
+To check an existing BT without a model service or ROS:
 
 ```bash
-# Launch simulation environment
-cd ~/catkin_ws/src/SRDrone/sh
-bash start_sim.sh
-
-# Monitor execution
-tail -f ~/catkin_ws/src/SRDrone/controller/config/BTlog.txt
-
-# Visualize in RViz
-rviz -d ~/catkin_ws/src/SRDrone/sensor_pkg/rflysim.rviz
+python -m srdrone validate examples/notebook_detection_failure.xml
 ```
 
-### Real Flight Mode
+## Use a language model
+
+The runtime accepts a Chat Completions compatible endpoint. Configure the model explicitly; the historical paper used GPT-4o at temperature 0.2, while current model availability depends on your provider.
 
 ```bash
-# Launch real flight stack
-cd ~/catkin_ws/src/SRDrone/sh
-bash start_control.sh
-
-# Manual control (for debugging)
-rostopic pub /mavros/set_mode mavros_msgs/SetMode "{base_mode: 0, custom_mode: 'OFFBOARD'}"
-rosservice call /mavros/cmd/arming "value: true"
+export SRDRONE_API_KEY='your-provider-key'
+export SRDRONE_MODEL='your-provider-model-id'
+export SRDRONE_BASE_URL='https://api.openai.com/v1'
+export SRDRONE_TEMPERATURE='0.2'
 ```
 
-### Custom Behavior Trees
+Credentials are read from the environment. Model traces save prompts, mission inputs and responses under the selected output directory, without authorization headers. No network calls occur in `demo`, `validate`, or at import time.
 
-Edit `controller/config/mav.xml` to customize mission workflows:
-
-```xml
-<root BTCPP_format="4">
-    <BehaviorTree ID="MainTree">
-        <Sequence>
-            <Condition ID="Check_Takeoff"/>
-            <Action ID="Takeoff"/>
-            <Condition ID="Check_cross_frame1"/>
-            <Action ID="Cross_frame1"/>
-            <Condition ID="Check_Land"/>
-            <Action ID="Land"/>
-        </Sequence>
-    </BehaviorTree>
-</root>
-```
-
-### Workflow Mode (Paper 3.2/3.3 Scaffold)
-
-Run the closed-loop scaffold (default reads `controller/config/BTlog.txt`):
+Generate a plan:
 
 ```bash
-python3 -m workflow.cli \
-  --mission-id demo_mission \
-  --max-cycles 1 \
-  --state-source controller_log \
-  --controller-log-path controller/config/BTlog.txt
+python -m srdrone plan \
+  --task 'Find a square frame, pass through it, and land.' \
+  --output runs/new-plan
 ```
 
-Notes:
-- Stage-A input source is controller-filtered BT logs (no duplicate filtering in workflow).
-- BTlog is parsed per run session: one `plan XML` block (`<root ...>...</root>`) + following `filtered log` block.
-- Session selection policy is reverse chronological (`cycle=0` uses latest session).
-- Evaluator/Reflector stages are **text-first** outputs (LLM free-form text), with optional structured fields for engineering/debug.
-
-Use stub input source for local debugging:
+Evaluate a surviving notebook case and generate a candidate correction:
 
 ```bash
-python3 -m workflow.cli --state-source stub --max-cycles 1
+python -m srdrone evaluate \
+  --task 'Find and pass through a square frame.' \
+  --plan examples/notebook_detection_failure.xml \
+  --log examples/notebook_detection_failure.txt \
+  --reflect --output runs/notebook-case
 ```
 
-## 📊 Performance Metrics
+Analyze a full controller BTlog session, including its embedded plan:
 
-### Evaluation Framework
-- **Real-time Processing**: State evaluation latency < 100ms
-- **Accuracy**: Task execution determination accuracy > 95%
-- **Interpretability**: Anomaly attribution interpretability score > 0.8
+```bash
+python -m srdrone evaluate \
+  --task 'Find a square frame, pass through it, and land.' \
+  --log controller/config/BTlog.txt \
+  --session-index -1 --reflect --output runs/log-analysis
+```
 
-### Planning Optimization
-- **Correction Accuracy**: Behavior tree modification accuracy > 90%
-- **Success Rate**: Planning refinement success rate > 85%
-- **Learning Efficiency**: Continuous improvement through experience accumulation
+`evaluate` is historical analysis: it exports a candidate but does not execute it or claim that it succeeded. Missing evidence yields `unknown`. The legacy `python -m workflow.cli` entry point now exposes the same subcommands.
 
-## 🧪 Development Status
+## Close the execution loop
 
-### ✅ Implemented Modules
-- [x] Common message definitions
-- [x] Flight control with Behavior Trees
-- [x] Multi-camera object detection
-- [x] ArUco marker recognition
-- [x] Sensor integration (RflySim/RealSense)
-- [x] Launch orchestration scripts
+`run` sends each plan to an external execution adapter, waits for a fresh result matching the plan digest, evaluates it, and executes a correction only when another iteration is warranted. It allows an initial execution plus up to five refinements.
 
-### 🚧 Under Development
-- [ ] **Evaluator Module**: Continuous state evaluation framework
-- [ ] **Reflector Module**: Hierarchical behavior tree modification
-- [ ] Experience base and learning mechanisms
-- [ ] Advanced visualization tools
+```bash
+python -m srdrone run \
+  --task 'Find a square frame, pass through it, and land.' \
+  --initial-plan runs/new-plan/plan.xml \
+  --exchange runs/mission-exchange \
+  --output runs/mission --max-refinements 5
+```
 
-### 📅 Planned Features
-- [ ] Multi-UAV coordination
-- [ ] Advanced simulation scenarios
-- [ ] Real-world deployment guides
-- [ ] Performance benchmarking suite
+In a second terminal, with the prepared simulation environment and sourced catkin workspace, start the ROS1 adapter using the same exchange directory:
 
-## 📚 Research Context
+```bash
+python -m srdrone.ros_adapter \
+  --exchange runs/mission-exchange --launch sim \
+  --execution-timeout 300 --max-executions 6
+```
 
-This implementation is based on the following research contributions:
+Use the provided ROS1 adapter in a prepared PX4/RflySim environment, or implement the documented file protocol for another simulator. The ROS adapter launches the flight controller and can arm/move the vehicle; the offline demo never invokes it. See [execution and ROS integration](docs/EXECUTION.md) for configuration and commands. ROS compilation, simulation and physical-flight validation require that environment and have not been performed for this reconstruction.
 
-### Core Algorithms
-- **CMSR (Continuous Multi-Semantic Representation)**: Spatiotemporal semantic extraction for sensor-to-language conversion
-- **Hierarchical BT Modification**: Two-stage refinement with dual-constraint processing
-- **Action-Centric State Capture**: Critical flight state filtering from high-frequency data streams
+## Experience retrieval
 
-### Theoretical Foundations
-- Behavior Trees in robotics and autonomous systems
-- Visual servoing control theory
-- Multi-sensor fusion and state estimation
-- Continuous learning and experience accumulation
+Experiences persist in SQLite, with source task, task category, source/candidate plan digests, run identity, and validation status. New suggestions are `proposed`. A successful fresh execution in the same run marks the associated candidate's entries `execution_validated`. Only those entries are retrieved for new tasks by default.
 
-## 📖 Documentation
+For paper-style kNN retrieval:
 
-- [API Reference](docs/api.md) - Detailed API documentation
-- [Algorithm Details](docs/algorithms.md) - Core algorithm explanations
-- [Configuration Guide](docs/configuration.md) - System configuration options
-- [Troubleshooting](docs/troubleshooting.md) - Common issues and solutions
-- [Workflow Notes](workflow/IMPLEMENTATION_3_2_3_3.md) - Current 3.2/3.3 scaffold implementation details
+```bash
+python -m pip install -e '.[retrieval]'
+```
 
-## 🤝 Contributing
+This uses [`sentence-transformers/all-mpnet-base-v2`](https://huggingface.co/sentence-transformers/all-mpnet-base-v2) and cosine similarity. `--top-k` defaults to 3, an exposed reconstruction choice. `--retriever lexical` selects a small deterministic alternative for smoke tests; it does not reproduce the paper's retrieval method. MPNet weights are downloaded by Sentence Transformers when first used; no original experience bank is bundled.
 
-We welcome contributions from the research community! Please follow our contribution guidelines:
+## Validation and implementation provenance
 
-### Development Workflow
-1. Fork this repository
-2. Create a feature branch (`git checkout -b feature/your-feature`)
-3. Commit your changes (`git commit -am 'Add your feature'`)
-4. Push to the branch (`git push origin feature/your-feature`)
-5. Create a Pull Request
+| Component | Release status |
+| --- | --- |
+| Python runtime, offline refinement fixture, XML validation and experience persistence | Verified locally; CI runs on Python 3.10 and 3.12 |
+| Installable wheel with recovered prompts and demo assets | Built and exercised outside the source checkout |
+| Model-provider transport | Local HTTP roundtrip and error handling tested; live-provider inference quality requires evaluation |
+| MPNet kNN retrieval | Implemented as an optional dependency; model execution and retrieval quality require evaluation |
+| ROS1 adapter and controller integration | Included; Catkin, PX4/RflySim and physical-flight validation require the corresponding environment |
 
-### Code Standards
-- **C++**: Follow Google C++ Style Guide, use clang-format
-- **Python**: Follow PEP 8, use 4-space indentation
-- **Commits**: Use conventional commit format (`feat:`, `fix:`, `docs:`, etc.)
+The Python planning runtime was reconstructed from the published paper, eight surviving prompt excerpts and the public controller interfaces. The original private source, complete experimental dataset and trained experience base are unavailable. This release does not claim reproduction of the paper's quantitative results.
 
-## 📄 License
+See [method-to-code provenance](docs/RECOVERY.md), [validation commands and boundaries](docs/VALIDATION.md), [controller interfaces](docs/INTERFACES.md), and [execution protocol](docs/EXECUTION.md) for details.
 
-This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
+## Repository layout
 
-## 🙏 Acknowledgments
+| Path | Purpose |
+| --- | --- |
+| `srdrone/` | Model transport, BT generator/validator, experience bank, execution adapters and loop |
+| `srdrone/prompts/recovered/` | Eight verbatim prompt excerpts from the surviving notebook |
+| `srdrone/prompts/manifest.json` | Source line ranges and SHA-256 hashes |
+| `evaluator/` | Continuous state capture, CMSR, execution completeness and task evaluation |
+| `reflector/` | Hierarchical diagnosis, constraint space and node-level experience |
+| `workflow/` | Shared data models, historical BTlog parser and compatibility entry point |
+| `controller/` | Original C++ ROS1 BT controller, with configurable plan/log paths and root-status logging |
+| `object_det/`, `recognize_aruco/`, `sensor_pkg/`, `common_msgs/` | Existing perception, sensors and ROS messages |
+| `examples/` | Surviving notebook case and provenance |
+| `srdrone/data/frame_crossing/` | Synthetic offline demo, clearly separated from experiments |
 
-We thank the following open-source projects and communities:
-- ROS community and MAVROS maintainers
-- BehaviorTree.CPP development team
-- YOLO official and ultralytics team
-- PCL and OpenCV communities
-- RflySim virtual simulation platform team
+The validator exposes an audited subset of the public controller's actual registered interfaces. Some research-notebook nodes, including `ForwardDetectBalloon`, are absent from the public controller and are intentionally excluded from generation. See the [interface audit](docs/INTERFACES.md).
 
-## 📞 Contact
+## License and citation
 
-- **Primary Maintainer**: [Xicheng Zhang](csu_xichengzhang@csu.edu.cn)
-- **Issues**: [GitHub Issues](https://github.com/your-repo/SRDrone/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/your-repo/SRDrone/discussions)
-
-## 📄 Citation
-
-If you use this work in your research, please cite our paper:
+SRDrone-authored code and the reconstructed runtime use [Apache-2.0](LICENSE), consistent with the existing project metadata. Third-party source retains its own terms. In particular, vendored YOLOv5 files identify GPL-3.0; see [third-party notices](THIRD_PARTY_NOTICES.md). Existing model binaries do not include recovered training/data provenance.
 
 ```bibtex
-@article{zhang2025llm,
-  title={LLM-Driven Self-Refinement for Embodied Drone Task Planning},
-  author={Zhang, Deyu and Zhang, Xicheng and Li, Jiahao and Long, Tingting and Dai, Xunhua and Fu, Yongjian and Zhang, Jinrui and Ren, Ju and Zhang, Yaoxue},
-  journal={arXiv preprint arXiv:2508.15501},
-  year={2025}
+@article{zhang2026srdrone,
+  title   = {SRDrone: LLM-Driven Self-Refinement for Embodied Drone Task Planning},
+  author  = {Zhang, Deyu and Zhang, Xicheng and Zhang, Jinrui and Li, Jiahao and
+             Long, Tingting and Dai, Xunhua and Fu, Yongjian and Ren, Ju and Zhang, Yaoxue},
+  journal = {IEEE Transactions on Mobile Computing},
+  year    = {2026},
+  volume  = {25},
+  number  = {7},
+  doi     = {10.1109/TMC.2026.3664806}
 }
 ```
-
----
-
-**Last Updated**: November 2024  
-**Version**: 1.0.0  
-**Status**: Active Development

@@ -36,6 +36,7 @@ class ReflectionPlan:
     cycle_index: int
     needs_modification: bool
     summary: str
+    candidate_bt_xml: str = ""
     proposed_changes: List[Dict[str, Any]] = field(default_factory=list)
     constraints_check: Dict[str, Any] = field(default_factory=dict)
     layered_findings: List[Dict[str, Any]] = field(default_factory=list)

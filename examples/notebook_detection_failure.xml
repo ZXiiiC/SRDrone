@@ -1,0 +1,15 @@
+<root BTCPP_format="4">
+  <BehaviorTree ID="MainTree">
+    <Sequence>
+      <TakeOff takeoff_target="0;0;2" />
+      <SetYawAngle yaw="0" />
+      <Repeat num_cycles="3">
+        <Sequence>
+          <ForwardDetectFrame FramePosition="{frame_position}" />
+          <FlyToCoordinates coordinates="{frame_position}" />
+        </Sequence>
+      </Repeat>
+      <Land />
+    </Sequence>
+  </BehaviorTree>
+</root>

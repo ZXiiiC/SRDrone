@@ -1,0 +1,3 @@
+Takeoff finished. drone pose[nwu,yaw]:(-0.00471443, 0.00144985, 1.95025,2.15458e-05)
+SetYawAngle finished. drone pose [nwu,yaw]:(-0.00471443, 0.00144985, 1.95025, 0.00123449)
+ForwardDetectFrame FAILURE. There is no object to be detected within the field of view of the front camera.

@@ -1,0 +1,70 @@
+{
+  "source": "author-supplied drone.md",
+  "source_sha256": "442053aec967b6b69805b8bd275b5ebef7da6d9c9c4aa6ea867864825752827a",
+  "excerpts": [
+    {
+      "file": "srdrone/prompts/recovered/actor.txt",
+      "lines": [
+        551,
+        606
+      ],
+      "sha256": "c4ce2994de4c792eb36b0c610dce2d87b9d33fdcfe59befdfa5055bb19b93ee7"
+    },
+    {
+      "file": "srdrone/prompts/recovered/execution.txt",
+      "lines": [
+        624,
+        641
+      ],
+      "sha256": "7eeaede440ed0a2164b17f0f2b1a18c79cad7a6c14aa483fd41d4953b03dc7c1"
+    },
+    {
+      "file": "srdrone/prompts/recovered/trajectory.txt",
+      "lines": [
+        655,
+        688
+      ],
+      "sha256": "f4b8af03e171c8a069392cf2dc03ce006d5e58d08f53ebf21e40b40ec72ee91f"
+    },
+    {
+      "file": "srdrone/prompts/recovered/cmsr.txt",
+      "lines": [
+        698,
+        734
+      ],
+      "sha256": "ff0673aa2b92731d359c35a5309458c79f8197ded0c21eb11a345c60cf465882"
+    },
+    {
+      "file": "srdrone/prompts/recovered/outcome.txt",
+      "lines": [
+        765,
+        783
+      ],
+      "sha256": "b44bdd254133c7b7afdfd136c546d584fd33ea24499e869fbd4aacdd4c715164"
+    },
+    {
+      "file": "srdrone/prompts/recovered/analysis.txt",
+      "lines": [
+        795,
+        819
+      ],
+      "sha256": "259fa4dbd5d757bd8d5dec89948557c4a01e5784875e2cf900bf49632be69c95"
+    },
+    {
+      "file": "srdrone/prompts/recovered/correction.txt",
+      "lines": [
+        827,
+        873
+      ],
+      "sha256": "fe81590c0bd7622a39cc23725c0b60a1917f613a07d5947a75141d30d621db74"
+    },
+    {
+      "file": "srdrone/prompts/recovered/experience.txt",
+      "lines": [
+        877,
+        883
+      ],
+      "sha256": "64e3d68216c7997b39cb9fb103ac1af6d50488f7e92b702b141bf91a43afe524"
+    }
+  ]
+}

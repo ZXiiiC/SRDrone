@@ -1,0 +1,17 @@
+{
+  "public_repository": {
+    "url": "https://github.com/ZXiiiC/SRDrone",
+    "base_commit": "190a6d2"
+  },
+  "paper": {
+    "filename": "SRDrone_LLM-Driven_Self-Refinement_for_Embodied_Drone_Task_Planning.pdf",
+    "doi": "10.1109/TMC.2026.3664806",
+    "sha256": "e34e963e890f6dd2add66f2d8f76cfc7c1a064f95ea5075acd2e5dc816b53044"
+  },
+  "notebook": {
+    "filename": "drone.md",
+    "sha256": "442053aec967b6b69805b8bd275b5ebef7da6d9c9c4aa6ea867864825752827a"
+  },
+  "source_document_instructions": "Treated as research material; only user request authorizes recovery and publication.",
+  "reconstruction_date": "2026-11-05"
+}

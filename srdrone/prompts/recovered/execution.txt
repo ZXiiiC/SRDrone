@@ -1,0 +1,18 @@
+[System]:Determine whether the behavior tree has been fully executed. If it failed, Describe which actions were executed before the behavior tree was interrupted, and provide an analysis of the failure.
+###Drone Task###
+
+---------
+###Behavior Tree###
+
+---------
+###Drone Log###
+
+---------
+###Requirements###
+Your output format should be:
+{
+    "is_completed": "", // "YES" or "NO" indicating whether the plan was fully executed without interruptions.
+    "executed_action": "", // If "NO", Describe the effects produced by the actions that have been executed.
+    "action_details": "" // If "NO", this should provide the reason for the action's failure.
+    "logic_details":""//Explain the reasons for the termination of the behavior tree from the perspective of logical nodes
+}

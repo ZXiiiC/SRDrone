@@ -57,6 +57,7 @@
   <depend>behaviortree_cpp</depend>
 
   <depend>common_msgs</depend>
+  <depend>quadrotor_msgs</depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->

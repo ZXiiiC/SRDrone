@@ -1,0 +1,19 @@
+[System]：Determine whether the drone has successfully completed the task. If it failed, please provide an explanation for the failure.
+[User]:
+###Drone Task###
+
+---------
+###Scene Info###
+
+---------
+###Requirements###
+1.Visualize the drone state after each reasoning
+2.Your output format should be:
+{
+    "Task_requirement":""//A concise reason of the actions the drone needs to perform, the behaviors to implement, and the expected outcomes.
+    "Relevant Trajectory":""//Extract the drone trajectory's effectiveness most relevant to the task.
+    "Gap Assessment": "" // Analyze the differences between the task specification and the execution trajectory to identify potential deviations or errors
+    "Result": "", *// success or failure*
+}
+
+

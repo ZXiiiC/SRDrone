@@ -14,6 +14,7 @@ find_package(catkin REQUIRED
     geometry_msgs
     nav_msgs
     common_msgs
+    quadrotor_msgs
     cv_bridge
     behaviortree_cpp
     )

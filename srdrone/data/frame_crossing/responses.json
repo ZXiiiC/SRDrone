@@ -1,0 +1,194 @@
+[
+  {
+    "stage": "trajectory",
+    "response": {
+      "idealized_trajectory": "Take off at (0,0,1.5); detect frame at (2,0,1.5); fly to frame; land.",
+      "uncertainties": []
+    }
+  },
+  {
+    "stage": "cmsr",
+    "response": {
+      "semantic_trajectory": "The drone takes off, detects the frame, and flies to its center. It lands at the frame center without reaching the other side. Arrival at the center does not establish traversal.",
+      "ego_trajectory": [
+        {
+          "behavior_type": "FlyToCoordinates",
+          "displacement_nwu": [
+            2,
+            0,
+            0
+          ],
+          "orientation_change_degrees": 0
+        }
+      ],
+      "environment_state": [
+        {
+          "object": "square_frame",
+          "position_nwu": [
+            2,
+            0,
+            1.5
+          ],
+          "source": "ForwardDetectFrame",
+          "stale": false
+        }
+      ],
+      "temporal_spatial_relations": [
+        {
+          "object": "square_frame",
+          "phi_intent": "approach",
+          "phi_proximity": "at frame center",
+          "phi_safety": "fixture assumes no other obstacles; straight-line segment fits opening"
+        }
+      ]
+    }
+  },
+  {
+    "stage": "execution",
+    "response": {
+      "is_completed": "YES",
+      "executed_action": "All nodes completed.",
+      "action_details": "No failed action.",
+      "logic_details": "Sequence reached its end; root status SUCCESS."
+    }
+  },
+  {
+    "stage": "outcome",
+    "response": {
+      "result": "failure",
+      "task_requirement": "Find, pass through the frame opening, then land.",
+      "relevant_trajectory": "Reached center then descended.",
+      "gap_assessment": "No onward segment beyond the frame.",
+      "explanation": "The BT completes, but the task fails: reaching the frame center and landing does not pass through it.",
+      "dimensions": {
+        "navigational_intent_verification": {
+          "status": "fail",
+          "detail": "Traversal not completed."
+        },
+        "proximity_awareness": {
+          "status": "fail",
+          "detail": "Traversal not completed."
+        },
+        "collision_centric_safety": {
+          "status": "pass",
+          "detail": "Hand-authored fixture with known straight segments and opening geometry."
+        }
+      },
+      "anomalies": [
+        {
+          "layer": "action",
+          "target": "/MainTree/0/2",
+          "detail": "No segment continues beyond the frame."
+        }
+      ]
+    }
+  },
+  {
+    "stage": "analysis",
+    "response": {
+      "action_layer_flaws": [
+        {
+          "target": "/MainTree/0/2",
+          "problem_analysis": "FlyToCoordinates reaches the center but no motion crosses beyond it."
+        }
+      ],
+      "logic_layer_flaws": [],
+      "mission_layer_flaws": []
+    }
+  },
+  {
+    "stage": "correction",
+    "response": {
+      "experiences": [
+        {
+          "layer": "action",
+          "target": "/MainTree/0/2",
+          "operation": "Insert MoveForward with distance 1 after FlyToCoordinates and before Land, when aligned with the frame normal.",
+          "rationale": "The onward segment crosses from the opening center to the far side; center arrival alone is insufficient."
+        }
+      ]
+    }
+  },
+  {
+    "stage": "refine",
+    "response": "<root BTCPP_format=\"4\">\n  <BehaviorTree ID=\"MainTree\">\n    <Sequence>\n      <TakeOff takeoff_target=\"0;0;1.5\"/>\n      <ForwardDetectFrame FramePosition=\"{frame_position}\"/>\n      <FlyToCoordinates coordinates=\"{frame_position}\"/>\n      <MoveForward MoveForward_distance=\"1\"/>\n      <Land/>\n    </Sequence>\n  </BehaviorTree>\n</root>\n"
+  },
+  {
+    "stage": "trajectory",
+    "response": {
+      "idealized_trajectory": "Take off at (0,0,1.5); detect frame at (2,0,1.5); fly to frame; move forward to (3,0,1.5); land.",
+      "uncertainties": []
+    }
+  },
+  {
+    "stage": "cmsr",
+    "response": {
+      "semantic_trajectory": "The drone takes off, detects the frame, and flies to its center. It then moves 1m beyond the frame plane along +North before landing. The fixture specifies straight-line segments through the opening.",
+      "ego_trajectory": [
+        {
+          "behavior_type": "FlyToCoordinates",
+          "displacement_nwu": [
+            2,
+            0,
+            0
+          ],
+          "orientation_change_degrees": 0
+        }
+      ],
+      "environment_state": [
+        {
+          "object": "square_frame",
+          "position_nwu": [
+            2,
+            0,
+            1.5
+          ],
+          "source": "ForwardDetectFrame",
+          "stale": false
+        }
+      ],
+      "temporal_spatial_relations": [
+        {
+          "object": "square_frame",
+          "phi_intent": "traverse",
+          "phi_proximity": "crossed to +North side",
+          "phi_safety": "fixture assumes no other obstacles; straight-line segment fits opening"
+        }
+      ]
+    }
+  },
+  {
+    "stage": "execution",
+    "response": {
+      "is_completed": "YES",
+      "executed_action": "All nodes completed.",
+      "action_details": "No failed action.",
+      "logic_details": "Sequence reached its end; root status SUCCESS."
+    }
+  },
+  {
+    "stage": "outcome",
+    "response": {
+      "result": "success",
+      "task_requirement": "Find, pass through the frame opening, then land.",
+      "relevant_trajectory": "Moved beyond the frame plane.",
+      "gap_assessment": "Traversal is present in this ideal fixture.",
+      "explanation": "The corrected fixture trajectory crosses the frame opening before landing.",
+      "dimensions": {
+        "navigational_intent_verification": {
+          "status": "pass",
+          "detail": "Traversal completed."
+        },
+        "proximity_awareness": {
+          "status": "pass",
+          "detail": "Traversal completed."
+        },
+        "collision_centric_safety": {
+          "status": "pass",
+          "detail": "Hand-authored fixture with known straight segments and opening geometry."
+        }
+      },
+      "anomalies": []
+    }
+  }
+]

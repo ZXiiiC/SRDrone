@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Dict
 
+from srdrone.llm import TextModel
 from workflow.core.interfaces import Evaluator
 from workflow.core.models import EvaluationResult, ExecutionSnapshot, MissionContext
 
@@ -14,7 +15,7 @@ from .core.stages import (
 
 
 class ContinuousStateEvaluatorPipeline(Evaluator):
-    """Paper-aligned evaluator skeleton for §3.2.
+    """Reconstructed continuous state evaluator for §3.2.
 
     Stage order:
       1) Action-Centric State Capture
@@ -27,10 +28,11 @@ class ContinuousStateEvaluatorPipeline(Evaluator):
         state_capture: ActionCentricStateCapture | None = None,
         cmsr_extractor: CMSRExtractor | None = None,
         determiner: TaskOutcomeDeterminer | None = None,
+        model: TextModel | None = None,
     ) -> None:
         self._state_capture = state_capture or ActionCentricStateCaptureStage()
-        self._cmsr_extractor = cmsr_extractor or CMSRExtractionStage()
-        self._determiner = determiner or TaskOutcomeDeterminationStage()
+        self._cmsr_extractor = cmsr_extractor or CMSRExtractionStage(model)
+        self._determiner = determiner or TaskOutcomeDeterminationStage(model)
 
     def evaluate(self, mission: MissionContext, snapshot: ExecutionSnapshot) -> EvaluationResult:
         action_state = self._state_capture.run(mission=mission, snapshot=snapshot)

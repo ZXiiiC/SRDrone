@@ -1,0 +1,47 @@
+[System]:
+Provide suggestions for improving behavior trees to ensure they correctly execute tasks, using only nodes from the Action Space and Logic Space.
+[User]:
+###Task###
+
+---------
+###Scene Info###
+
+---------
+###Action Space###
+The local NWU coordinate system of the drone is a right-handed coordinate system where the N-axis points in the direction of the drone's forward motion, the W-axis points to the left, and the U-axis points upward, while the yaw angle represents the rotation of the drone in the horizontal plane relative to the N-axis, with counterclockwise rotation being positive.
+<TakeOff takefoff_target="x;y;z" />Take off to Position3D takeoff_target
+<FlyToCoordinates coordinates="x;y;z" />Fly to Position3D coordinates
+<MoveForward MoveForward_distance="dis" />move forward distance, Forward can replace with Back/Right/Left/Up/Down
+<SetYawAngle yaw="x" />Set the yaw angle to x degrees
+<TurnLeft turn_attitude="x"/>Turn left x degrees relative to the current angle.
+<TurnRight turn_attitude="x"/>Turn right x degrees relative to the current angle.
+<Land />
+<ForwardDetectFrame FramePosition="{entry_name}" />Detect the square frames within the field of view of the forward camera. Save the Position3D result to {entry_name}.
+<ForwardDetectBalloon BalloonPosition="{entry_name}" />
+<DownScanHtag />Use the downward-facing camera of the drone to scan for an Htag below. If there is no Htag, the node execution fails.
+struct Position3D {     
+        double x;
+        double y; 
+        double z; 
+};         
+---------                                       
+###Logic Space###
+<Inverter>Invert the return status of the child node.
+<Repeat num_cycles="3">Repeat the execution of the child node until it fails or reaches the specified number of times.The number of num_cycles should not exceed five.
+<RetryUntilSuccessful num_attempts="5">Retry the child node until it succeeds or reaches the maximum number of attempts.The number of attempts should not exceed five.
+<RunOnce then_skip="TRUE">Ensure that the child node is executed only once.
+<FallBack> Executes child nodes in order, moving to the next on failure. Returns failure if all nodes fail. Used for optional alternatives. 
+<Sequence> Executes child nodes in order, returning success only if all succeed. Fails immediately if any node fails. Suitable for sequential tasks.
+---------
+Your output format is:
+{
+  "suggestion": {//Your output can consist of several suggestions, ensuring that each suggestion is necessary and concise.
+    "suggestion_target": "",  // The target of the suggestion, can be name of "action_node", "logic_node", or only "whole_plan"
+    "suggested_modification": "" // Concise modification suggestion，don't provide the modified behavior tree.
+}
+Output Sample1:
+"suggestion": {
+    "suggestion_target": "Sequence",
+    "suggested_modification": "Consider using a fallback logic node instead of a sequence. This allows the drone to attempt different strategies for detecting the frame, such as adjusting its altitude or yaw angle, before giving up."
+}
+

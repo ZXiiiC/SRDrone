@@ -1,5 +1,10 @@
 from __future__ import annotations
 
+from dataclasses import asdict
+
+from srdrone.bt import validate_bt
+from srdrone.llm import TextModel
+from srdrone.planner import BTPlanner
 from workflow.core.interfaces import Reflector
 from workflow.core.models import (
     EvaluationResult,
@@ -23,7 +28,7 @@ from .core.stages import (
 
 
 class HierarchicalBTReflectorPipeline(Reflector):
-    """Paper-aligned reflector skeleton for §3.3.
+    """Reconstructed hierarchical BT reflector for §3.3.
 
     Stage order:
       1) Hierarchical BT analysis
@@ -38,11 +43,14 @@ class HierarchicalBTReflectorPipeline(Reflector):
         constraints: DualConstraintProcessor | None = None,
         correction_generator: NodeCorrectionGenerator | None = None,
         experience_updater: ExperienceBaseUpdater | None = None,
+        model: TextModel | None = None,
+        planner: BTPlanner | None = None,
     ) -> None:
-        self._analyzer = analyzer or HierarchicalBTAnalysisStage()
+        self._analyzer = analyzer or HierarchicalBTAnalysisStage(model)
         self._constraints = constraints or DualConstraintStage()
-        self._correction_generator = correction_generator or NodeLevelCorrectionStage()
+        self._correction_generator = correction_generator or NodeLevelCorrectionStage(model)
         self._experience_updater = experience_updater or ExperienceBaseUpdateStage()
+        self._planner = planner or BTPlanner(model)
 
     def reflect(
         self,
@@ -50,6 +58,14 @@ class HierarchicalBTReflectorPipeline(Reflector):
         snapshot: ExecutionSnapshot,
         evaluation: EvaluationResult,
     ) -> ReflectionPlan:
+        if evaluation.success or evaluation.diagnostics.get("result") == "unknown":
+            return ReflectionPlan(
+                cycle_index=snapshot.cycle_index,
+                needs_modification=False,
+                summary="Task succeeded."
+                if evaluation.success
+                else "Insufficient evidence; acquire a new execution log.",
+            )
         analysis = self._analyzer.run(
             mission=mission,
             snapshot=snapshot,
@@ -67,16 +83,32 @@ class HierarchicalBTReflectorPipeline(Reflector):
             correction_spec=correction_spec,
         )
 
-        summary = (
-            "Hierarchical BT Modification skeleton executed. "
-            "Core correction algorithm pending implementation."
+        candidate = ""
+        if correction_spec.proposals:
+            candidate = self._planner.refine(
+                task=mission.metadata.get("task", ""),
+                scene=mission.metadata.get("scene", {}),
+                plan_xml=snapshot.state_payload["plan_xml"],
+                evaluation=asdict(evaluation),
+                experiences=correction_spec.reflective_experiences,
+            )
+        candidate_check = (
+            validate_bt(candidate).to_dict()
+            if candidate
+            else {"valid": False, "errors": ["No candidate"]}
         )
-        needs_modification = (not evaluation.success) and bool(correction_spec.proposals)
+        summary = (
+            "Generated and syntax-validated a candidate BT; execution validation is pending."
+            if candidate
+            else "No supported correction was generated."
+        )
+        needs_modification = bool(candidate)
 
         return ReflectionPlan(
             cycle_index=snapshot.cycle_index,
             needs_modification=needs_modification,
             summary=summary,
+            candidate_bt_xml=candidate,
             proposed_changes=correction_spec.proposals,
             constraints_check={
                 "hierarchical_analysis_raw_text": analysis.raw_text,
@@ -86,7 +118,8 @@ class HierarchicalBTReflectorPipeline(Reflector):
                 "structural_validity": constraints_result.structural_validity,
                 "action_space": constraints_result.action_space,
                 "logic_space": constraints_result.logic_space,
-                "validator_result": constraints_result.validator_result,
+                "source_validator_result": constraints_result.validator_result,
+                "validator_result": candidate_check,
                 "details": constraints_result.details,
             },
             layered_findings=[
